@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المراقب الذكي - AI-Muraqib</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        // 4. إعدادات Tailwind
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'cairo': ['Cairo', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 5. تنسيقات مخصصة */
+        * { font-family: 'Cairo', sans-serif; }
+        body { scroll-behavior: smooth; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .detection-blob { filter: blur(50px); animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .sidebar { transition: transform 0.3s ease-in-out; }
+        /* لإخفاء أدوات ApexCharts الافتراضية */
+        .apexcharts-toolbar { display: none !important; } 
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+    <div class="flex h-screen overflow-hidden">
+
+        <aside id="sidebar" class="sidebar fixed lg:static inset-y-0 right-0 z-50 w-72 bg-white shadow-2xl transform translate-x-full lg:translate-x-0 transition-transform duration-300">
+            <div class="flex flex-col h-full">
+
+                <div class="p-5 flex items-center justify-between border-b">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold">المراقب الذكي</span>
+                    </div>
+                    <button onclick="toggleSidebar()" class="lg:hidden text-gray-600">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <nav class="flex-1 px-4 py-6 space-y-2">
+                    <a href="#" data-tab="surveillance" onclick="showTab('surveillance'); toggleSidebar()" class="sidebar-item active flex items-center gap-4 px-4 py-4 rounded-xl bg-indigo-600 text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <span class="font-semibold">المراقبة المباشرة</span>
+                        <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-auto">2</span>
+                    </a>
+
+                    <a href="#" data-tab="alerts" onclick="showTab('alerts'); toggleSidebar()" class="sidebar-item flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        <span class="font-semibold">التنبيهات</span>
+                        <span class="bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-auto">5</span>
+                    </a>
+
+                    <a href="#" data-tab="statistics" onclick="showTab('statistics'); toggleSidebar()" class="sidebar-item flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        <span class="font-semibold">الإحصائيات</span>
+                    </a>
+
+                    <a href="#" data-tab="settings" onclick="showTab('settings'); toggleSidebar()" class="sidebar-item flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="font-semibold">الإعدادات</span>
+                    </a>
+                </nav>
+
+                <div class="p-5 border-t">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl">أ</div>
+                        <div class="text-right">
+                            <div class="font-bold">أحمد محمد</div>
+                            <div class="text-xs text-green-600">متصل الآن</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="flex-1 flex flex-col">
+
+            <header class="bg-white shadow-md px-5 py-4 flex items-center justify-between sticky top-0 z-30">
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-700">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+
+                <div class="flex items-center gap-4">
+                    <div class="bg-red-100 text-red-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                        <span>5 تنبيهات نشطة</span>
+                        <div class="w-3 h-3 bg-red-600 rounded-full pulse"></div>
+                    </div>
+                    <div id="clock" class="font-mono font-bold text-lg text-gray-700"></div>
+                </div>
+            </header>
+
+            <div class="bg-white px-6 py-4 border-b">
+                <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">المراقبة المباشرة</h1>
+                <p id="pageSubtitle" class="text-gray-500">عرض مباشر لجميع الكاميرات</p>
+            </div>
+
+            <main class="flex-1 overflow-y-auto pb-20 lg:pb-0">
+
+                <section id="surveillanceTab" class="p-4 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                        <div id="camera-front-door" class="bg-black rounded-2xl overflow-hidden shadow-xl">
+                            <div class="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+                                <div class="absolute inset-0 opacity-30 grid grid-cols-3 grid-rows-3">
+                                    <div class="border border-blue-500"></div><div class="border border-blue-500"></div><div class="border border-blue-500"></div>
+                                    <div class="border border-blue-500"></div><div class="border border-blue-500"></div><div class="border border-blue-500"></div>
+                                    <div class="border border-blue-500"></div><div class="border border-blue-500"></div><div class="border border-blue-500"></div>
+                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="w-32 h-48 bg-red-600 rounded-full detection-blob opacity-40"></div>
+                                </div>
+                                <div class="absolute top-3 left-3 bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold pulse">
+                                    نشاط مشبوه
+                                </div>
+                                <div class="absolute top-3 right-3 flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full pulse"></div>
+                                    <span class="text-white text-xs">مباشر</span>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-l from-indigo-600 to-purple-700 p-4 flex justify-between items-center">
+                                <span class="text-white font-bold">الباب الأمامي</span>
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </div>
+                        </div>
+
+                        <div id="camera-backyard" class="bg-black rounded-2xl overflow-hidden shadow-xl">
+                            <div class="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+                                <div class="absolute top-3 left-3 bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold">
+                                    كل شيء طبيعي
+                                </div>
+                                <div class="absolute top-3 right-3 flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+                                    <span class="text-white text-xs">مباشر</span>
+                                </div>
+                            </div>
+                            <div class="bg-gradient-to-r from-green-600 to-teal-700 p-4 flex justify-between items-center">
+                                <span class="text-white font-bold">الفناء الخلفي</span>
+                                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="alertsTab" class="p-6 space-y-6 hidden">
+                    <h2 class="text-2xl font-bold">التنبيهات النشطة</h2>
+                    <div class="bg-white rounded-2xl shadow-lg p-6 border-r-8 border-red-600">
+                        <div class="flex justify-between items-start">
+                            <div class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-bold text-sm">عالي الخطورة</div>
+                            <span class="text-gray-500 text-sm">14:32:18</span>
+                        </div>
+                        <h3 class="text-xl font-bold mt-4">كشف شخص غريب</h3>
+                        <p class="text-gray-600 mt-2">الباب الأمامي - تم رصد شخص غير معروف</p>
+                        <div class="flex gap-4 mt-6">
+                            <button onclick="viewCamera('camera-front-door')" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold">عرض الكاميرا</button>
+                            <button class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">تجاهل</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="statisticsTab" class="p-6 hidden space-y-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <span class="text-gray-500 font-semibold">إجمالي التنبيهات</span>
+                                    <span class="text-4xl font-extrabold text-gray-900 mt-1">51</span>
+                                </div>
+                                <div class="w-14 h-14 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-green-600 text-sm font-semibold">
+                                <span>12%</span>
+                                <span>+ عن الأسبوع الماضي</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <span class="text-gray-500 font-semibold">سرقات تم كشفها</span>
+                                    <span class="text-4xl font-extrabold text-gray-900 mt-1">03</span>
+                                </div>
+                                <div class="w-14 h-14 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-gray-500 text-sm font-semibold">
+                                <span>مستقر</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <span class="text-gray-500 font-semibold">مشتبه بهم</span>
+                                    <span class="text-4xl font-extrabold text-gray-900 mt-1">05</span>
+                                </div>
+                                <div class="w-14 h-14 rounded-xl bg-yellow-100 text-yellow-600 flex items-center justify-center">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-red-600 text-sm font-semibold">
+                                <span>3</span>
+                                <span>- عن الأسبوع الماضي</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <span class="text-gray-500 font-semibold">نسبة النشاط</span>
+                                    <span class="text-4xl font-extrabold text-gray-900 mt-1">87%</span>
+                                </div>
+                                <div class="w-14 h-14 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-green-600 text-sm font-semibold">
+                                <span>5%</span>
+                                <span>+ عن الأسبوع الماضي</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <span class="text-gray-500 font-semibold">متوسط وقت الاستجابة</span>
+                                    <span class="text-4xl font-extrabold text-gray-900 mt-1">2.3 <span class="text-3xl">د</span></span>
+                                </div>
+                                <div class="w-14 h-14 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-green-600 text-sm font-semibold">
+                                <span>0.5</span>
+                                <span>- تحسن</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div class="flex justify-between items-start">
+                                <div class="flex flex-col">
+                                    <span class="text-gray-500 font-semibold">التنبيهات النشطة</span>
+                                    <span class="text-4xl font-extrabold text-red-600 mt-1">05</span>
+                                </div>
+                                <div class="w-14 h-14 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v1.5M3 21v-1.5M21 3v1.5M21 21v-1.5M12 18.375c-3.443 0-6.25-2.807-6.25-6.25S8.557 5.875 12 5.875 18.25 8.682 18.25 12 15.443 18.375 12 18.375zM8.25 12c0 .621.504 1.125 1.125 1.125h5.25c.621 0 1.125-.504 1.125-1.125S15.221 10.875 14.625 10.875h-5.25c-.621 0-1.125.504-1.125 1.125z"/></svg>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-gray-500 text-sm font-semibold">
+                                <span>تحتاج مراجعة فورية</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        <div class="lg:col-span-3 bg-white rounded-2xl shadow-lg p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">التنبيهات الأسبوعية</h3>
+                            <div id="line-chart-container"></div>
+                        </div>
+                        <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">أنواع التنبيهات</h3>
+                            <div id="pie-chart-container"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">النشاط خلال اليوم</h3>
+                        <div id="bar-chart-container"></div>
+                    </div>
+
+                </section>
+                
+                <section id="settingsTab" class="p-6 hidden">
+                    <div class="bg-white rounded-2xl shadow-lg max-w-4xl mx-auto p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">إعدادات النظام</h2>
+                        <p class="text-gray-500 mb-8">تحكم في إعدادات النظام والمراقبة</p>
+        
+                        <div class="divide-y divide-gray-200">
+                            
+                            <div class="flex justify-between items-center py-5">
+                                <div class="text-right">
+                                    <h3 class="text-lg font-semibold text-gray-900">كشف الحركة</h3>
+                                    <p class="text-sm text-gray-500">تفعيل نظام كشف الحركة التلقائي</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                                </label>
+                            </div>
+        
+                            <div class="flex justify-between items-center py-5">
+                                <div class="text-right">
+                                    <h3 class="text-lg font-semibold text-gray-900">التنبيهات الصوتية</h3>
+                                    <p class="text-sm text-gray-500">تفعيل صوت عند اكتشاف نشاط مشبوه</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                                </label>
+                            </div>
+        
+                            <div class="flex justify-between items-center py-5">
+                                <div class="text-right">
+                                    <h3 class="text-lg font-semibold text-gray-900">التسجيل التلقائي</h3>
+                                    <p class="text-sm text-gray-500">تسجيل الفيديو عند اكتشاف حركة</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                                </label>
+                            </div>
+        
+                            <div class="flex justify-between items-center py-5">
+                                <div class="text-right">
+                                    <h3 class="text-lg font-semibold text-gray-900">الإشعارات عبر البريد</h3>
+                                    <p class="text-sm text-gray-500">إرسال تنبيهات عبر البريد الإلكتروني</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                                </label>
+                            </div>
+        
+                            <div class="py-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900">حساسية الكاشف</h3>
+                                </div>
+                                <p class="text-sm text-gray-500 mb-3">تحديد مدى حساسية الكاميرات لاكتشاف الحركة</p>
+                                <input type="range" min="0" max="100" value="75" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                                <div class="flex justify-between text-sm text-gray-600 mt-2">
+                                    <span>منخفضة</span>
+                                    <span>عالية</span>
+                                </div>
+                            </div>
+        
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Ouvrir/Fermer le menu mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('translate-x-full');
+            document.getElementById('overlay').classList.toggle('hidden');
+        }
+
+        // Changer d’onglet
+        function showTab(tab) {
+            document.querySelectorAll('section[id$="Tab"]').forEach(t => t.classList.add('hidden'));
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+
+            // Mise à jour du titre
+            const titles = {
+                surveillance: { title: "المراقبة المباشرة", sub: "عرض مباشر لجميع الكاميرات" },
+                alerts:       { title: "التنبيهات",       sub: "آخر التنبيهات النشطة" },
+                statistics:   { title: "الإحصائيات",     sub: "تحليل الأداء والنشاط - آخر 7 أيام" },
+                settings:     { title: "الإعدادات",       sub: "تحكم في إعدادات النظام والمراقبة" } // (تحديث)
+            };
+            document.getElementById('pageTitle').textContent = titles[tab].title;
+            document.getElementById('pageSubtitle').textContent = titles[tab].sub;
+
+            // Mettre à jour la classe active dans le menu
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active', 'bg-indigo-600', 'text-white');
+            });
+            const activeItem = document.querySelector(`.sidebar-item[data-tab="${tab}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active', 'bg-indigo-600', 'text-white');
+            }
+        }
+        
+        // التوجيه إلى الكاميرا
+        function viewCamera(cameraId) {
+            showTab('surveillance');
+            const cameraElement = document.getElementById(cameraId);
+            if (cameraElement) {
+                cameraElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // إضافة تأثير التمييز
+                cameraElement.style.transition = 'box-shadow 0.3s ease-out, transform 0.3s ease-out';
+                cameraElement.style.boxShadow = '0 0 30px 10px rgba(79, 70, 229, 0.7)';
+                cameraElement.style.transform = 'scale(1.02)';
+                // إزالة التأثير بعد ثانيتين
+                setTimeout(() => {
+                    cameraElement.style.boxShadow = '';
+                    cameraElement.style.transform = 'scale(1)';
+                }, 2000); 
+            }
+            if (window.innerWidth < 1024) { // إغلاق القائمة على الموبايل
+                toggleSidebar();
+            }
+        }
+
+        // Horloge en temps réel
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('clock').textContent = time;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // خيارات عامة للمخططات
+            const globalChartOptions = {
+                chart: {
+                    fontFamily: 'Cairo, sans-serif',
+                    rtl: true,
+                    toolbar: { show: false }
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                    strokeDashArray: 3,
+                },
+                colors: ['#4F46E5', '#F59E0B', '#EF4444', '#8B5CF6'], // Indigo, Amber, Red, Purple
+            };
+
+            // 1. المخطط الخطي (Line Chart)
+            var lineChartOptions = {
+                ...globalChartOptions,
+                series: [
+                    { name: "تنبيهات", data: [5, 8, 6, 9, 6, 8, 12] },
+                    { name: "مشتبه بهم", data: [2, 3, 2, 4, 2, 3, 5] },
+                    { name: "سرقات", data: [1, 0, 1, 1, 0, 1, 0] }
+                ],
+                chart: { ...globalChartOptions.chart, height: 350, type: 'line' },
+                xaxis: {
+                    categories: ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"],
+                },
+                yaxis: {
+                    labels: { offsetX: -10 }
+                },
+                stroke: { width: 3, curve: 'smooth' },
+                legend: {
+                    position: 'bottom',
+                    horizontalAlign: 'center',
+                    offsetY: 5
+                },
+            };
+            var lineChart = new ApexCharts(document.querySelector("#line-chart-container"), lineChartOptions);
+            lineChart.render();
+
+
+            // 2. المخطط الدائري (Pie Chart)
+            var pieChartOptions = {
+                ...globalChartOptions,
+                series: [39, 25, 16, 20],
+                labels: ['نقاط مفتوحة', 'أشخاص', 'محاولة دخول', 'أخرى'],
+                chart: { ...globalChartOptions.chart, height: 350, type: 'pie' },
+                colors: ['#EF4444', '#F59E0B', '#3B82F6', '#8B5CF6'],
+                legend: { 
+                    position: 'bottom',
+                    formatter: function(seriesName, opts) {
+                        return [seriesName, " - ", opts.w.globals.series[opts.seriesIndex] + '%']
+                    }
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: { width: 200 },
+                        legend: { position: 'bottom' }
+                    }
+                }]
+            };
+            var pieChart = new ApexCharts(document.querySelector("#pie-chart-container"), pieChartOptions);
+            pieChart.render();
+
+
+            // 3. المخطط العمودي (Bar Chart)
+            var barChartOptions = {
+                ...globalChartOptions,
+                series: [{
+                    name: 'عدد التنبيهات',
+                    data: [1, 2, 8, 12, 15, 18, 10]
+                }],
+                chart: { ...globalChartOptions.chart, height: 350, type: 'bar' },
+                colors: ['#4F46E5'],
+                plotOptions: {
+                    bar: {
+                        borderRadius: 4,
+                        columnWidth: '50%',
+                        horizontal: false,
+                    }
+                },
+                dataLabels: { enabled: false },
+                xaxis: {
+                    categories: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
+                },
+                yaxis: {
+                    labels: { offsetX: -10 }
+                },
+            };
+            var barChart = new ApexCharts(document.querySelector("#bar-chart-container"), barChartOptions);
+            barChart.render();
+        });
+    </script>
+
+</body>
+</html>

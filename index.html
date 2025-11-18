@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المراقب — امنع السرقة في متجرك في الوقت الحقيقي</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ==== المتغيرات ==== */
+        :root {
+            --primary: #7B2CF6;
+            --primary-dark: #6A0DAD;
+            --dark: #333333;
+            --light: #FFFFFF;
+            --gray: #f8f9fa;
+        }
+
+        /* ==== الإعدادات العامة ==== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.7;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ==== الـ Header & التنقل ==== */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .mobile-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ==== الأزرار ==== */
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ==== قسم Hero ==== */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f4ff 0%, #f0e8ff 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: #555;
+        }
+
+        .hero .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-image {
+            width: 30%;
+            max-width: 400px;
+            height: auto;
+            margin: 3rem auto 0;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            display: block;
+        }
+
+        /* ==== الأقسام العامة ==== */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 4.2rem;
+            margin-bottom: 3rem;
+            color: var(--dark);
+        }
+
+        /* ==== كيف يعمل ==== */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 3rem;
+            background: var(--primary);
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .step img {
+            background: white;
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            margin: 0 auto 1.5rem;
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .step h3 {
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .step p {
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        /* ==== الخصائص (Features) ==== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .feature-card img,
+        .feature-card video {
+            width: 280px;
+            height: 200px;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        /* ==== التسعير ==== */
+        .pricing {
+            background: var(--gray);
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .pricing-card.featured {
+            border: 3px solid var(--primary);
+            position: relative;
+        }
+
+        .pricing-card.featured::before {
+            content: "الأكثر شعبية";
+            position: absolute;
+            top: -15px;
+            right: 50%;
+            transform: translateX(50%);
+            background: var(--primary);
+            color: white;
+            padding: 5px 20px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 1.5rem 0;
+        }
+
+        /* ==== النماذج ==== */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* ==== Footer ==== */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-column a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        /* ==== الاستجابة للموبايل ==== */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                width: 100%;
+                padding: 1rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                display: none;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .hero-image {
+                width: 70%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==== الـ Header ==== -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">المراقب</div>
+                <ul class="nav-links">
+                    <li><a href="#home">الرئيسية</a></li>
+                    <li><a href="#how-it-works">كيف يعمل</a></li>
+                    <li><a href="#features">الخصائص</a></li>
+                    <li><a href="#pricing">التسعير</a></li>
+                    <li><a href="#book-demo">حجز عرض</a></li>
+                    <li><a href="#about">من نحن</a></li>
+                    <li><a href="#contact">اتصل بنا</a></li>
+                </ul>
+                <div class="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ==== Hero ==== -->
+    <section id="home" class="hero">
+        <div class="container">
+            <h1>المراقب</h1>
+            <h1>امنع السرقة في متجرك في الوقت الحقيقي</h1>
+            <p>نظام ذكاء اصطناعي، يرسل تنبيهات فورية باستخدام كاميراتك وبدون أي أجهزة إضافية.</p>
+            <div class="cta-buttons">
+                <a href="#book-demo" class="btn btn-primary">احجز عرضًا تجريبيًا</a>
+                <a href="#features" class="btn btn-outline">اكتشف الخصائص</a>
+            </div>
+            <img src="images/hero.gif" alt="عرض توضيحي متحرك لتطبيق المراقب" class="hero-image" loading="lazy">
+        </div>
+    </section>
+
+    <!-- ==== كيف يعمل ==== -->
+    <section id="how-it-works">
+        <div class="container">
+            <h2 class="section-title">كيف يعمل النظام</h2>
+            <div class="steps">
+                <div class="step">
+                    <img src="images/cam1.jpg" alt="كاميرات المراقبة">
+                    <h3>الكاميرات تلتقط المشاهد وترسلها الى نظام المراقب</h3>
+                    <p>نستخدم الكاميرات الموجودة مسبقًا في متجرك لمراقبة الأحداث بشكل مستمر.</p>
+                </div>
+                <div class="step">
+                    <img src="images/precision.jpeg" alt="تحليل الذكاء الاصطناعي">
+                    <h3>الذكاء الاصطناعي يحلل السلوك في الوقت الحقيقي</h3>
+                    <p>خوارزميات متقدمة تكتشف السلوكيات المريبة فور حدوثها دون تأخير.</p>
+                </div>
+                <div class="step">
+                    <img src="images/alert.jpg" alt="إشعار فوري">
+                    <h3>إشعار فوري لفريق الأمن مع مقطع فيديو قصير</h3>
+                    <p>يصل التنبيه إلى هواتف فريقك مع مقطع فيديو مختصر للحادث.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== الخصائص ==== -->
+    <section id="features" style="background: var(--gray);">
+        <div class="container">
+            <h2 class="section-title">أبرز المزايا</h2>
+            <div class="features-grid">
+
+                <div class="feature-card">
+                    <img src="images/notify.jpg" alt="تنبيهات فورية">
+                    <h3>تنبيهات لحظية</h3>
+                    <p>إشعارات فورية عند اكتشاف أي نشاط مريب في المتجر.</p>
+                </div>
+
+                <!-- فيديو في "مراجعة المقاطع بسهولة" -->
+                <div class="feature-card">
+                    <video autoplay muted loop playsinline preload="metadata" poster="images/feature-video-poster.jpg">
+                        <source src="images/feature-video.webm" type="video/webm">
+                        <source src="images/hero.mp4" type="video/mp4">
+                        <img src="images/feature-video-poster.jpg" alt="مراجعة المقاطع بسهولة">
+                    </video>
+                    <h3>مراجعة المقاطع بسهولة</h3>
+                    <p>مقاطع فيديو مختصرة ومركزة على الحادث فقط، مع واجهة تحكم بسيطة.</p>
+                </div>
+
+                <div class="feature-card">
+                    <img src="images/connect.jpg" alt="كاميرات متوافقة">
+                    <h3>يعمل مع أي كاميرا</h3>
+                    <p>لا حاجة لاستبدال كاميراتك الحالية أو إضافة أجهزة مكلفة.</p>
+                </div>
+
+                <div class="feature-card">
+                    <img src="images/feature-privacy.jpg" alt="حماية الخصوصية">
+                    <h3>احترام الخصوصية</h3>
+                    <p>مقاطع الفيديو ملك الزبون، لا يمكننا مشاهدتها او استعمالها.</p>
+                </div>
+
+                <div class="feature-card">
+                    <img src="images/dashboard.jpeg" alt="لوحة تحكم">
+                    <h3>لوحة تحكم سهلة</h3>
+                    <p>واجهة بسيطة ومريحة لإدارة التنبيهات والتقارير. يمكن للمستخدم التجول داخل البرنامج بسهولة</p>
+                </div>
+
+                <div class="feature-card">
+                    <img src="images/feature-mobile.jpeg" alt="تطبيق جوال">
+                    <h3>دعم الهواتف الذكية وربط مع شبكة الهاتف</h3>
+                    <p>استقبال التنبيهات على هاتفك أينما كنت، يمكن ربط النظام بشبكة الهاتف</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== التسعير ==== -->
+    <section id="pricing">
+        <div class="container">
+            <h2 class="section-title">خطط الأسعار</h2>
+            <p style="text-align: center; margin-bottom: 3rem; color: #666;">الأسعار حسب الطلب — اختر الخطة المناسبة لمتجرك</p>
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <h3>الخطة القياسية</h3>
+                    <div class="price">حسب الطلب</div>
+                    <ul style="text-align: right; margin: 2rem 0;">
+                        <li>حتى 10 كاميرات</li>
+                        <li>دعم أساسي</li>
+                        <li>تركيب عن بُعد مجاني</li>
+                    </ul>
+                    <a href="#book-demo" class="btn btn-outline">اطلب عرضًا</a>
+                </div>
+                <div class="pricing-card featured">
+                    <h3>الخطة المتقدمة</h3>
+                    <div class="price">حسب الطلب</div>
+                    <ul style="text-align: right; margin: 2rem 0;">
+                        <li>حتى 20 كاميرا</li>
+                        <li>دعم موسّع</li>
+                        <li>تسجيل مقاطع أطول</li>
+                        <li>تحليلات متقدمة</li>
+                    </ul>
+                    <a href="#book-demo" class="btn btn-primary">اطلب عرضًا</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>الخطة المؤسسية</h3>
+                    <div class="price">حسب الطلب</div>
+                    <ul style="text-align: right; margin: 2rem 0;">
+                        <li>عدد غير محدود من الكاميرات</li>
+                        <li>تكامل مع الأنظمة</li>
+                        <li>دعم 24/7</li>
+                        <li>مدير حساب مخصص</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-outline">تواصل معنا</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== CTA حجز عرض ==== -->
+    <section style="background: var(--primary); color: white; text-align: center; padding: 60px 0;">
+        <div class="container">
+            <h2 style="color: white; margin-bottom: 1rem;">ابدأ اليوم واحمِ متجرك من الخسائر</h2>
+            <p style="margin-bottom: 2rem; font-size: 1.2rem;">احجز عرضًا تجريبيًا مجانيًا مدتها 15 دقيقة</p>
+            <a href="#book-demo" class="btn btn-primary" style="background: white; color: var(--primary);">احجز موعدًا الآن</a>
+        </div>
+    </section>
+
+    <!-- ==== حجز عرض ==== -->
+    <section id="book-demo" style="padding: 100px 0;">
+        <div class="container">
+            <h2 class="section-title">احجز عرضًا تجريبيًا</h2>
+            <p style="text-align: center; max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem;">
+                احجز مكالمة مدتها 15 دقيقة لاكتشاف كيف يمكن للمراقب تقليل الخسائر في متجرك.
+            </p>
+            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 3rem; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+                <form>
+                    <div class="form-group">
+                        <label>الاسم الكامل</label>
+                        <input type="text" class="form-control" placeholder="أدخل اسمك" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف</label>
+                        <input type="tel" class="form-control" placeholder="05xxxxxxxx" required>
+                    </div>
+                    <div class="form-group">
+                        <label>البريد الإلكتروني</label>
+                        <input type="email" class="form-control" placeholder="email@domain.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع النشاط التجاري</label>
+                        <select class="form-control">
+                            <option>سوبرماركت</option>
+                            <option>سوبريت</option>
+                            <option>متجر ملابس</option>
+                            <option>صيدلية</option>
+                            <option>آخر</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">احجز موعدًا</button>
+                </form>
+                <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #666;">
+                    <small>نحن نستخدم Calendly لجدولة المواعيد. سيتم توجيهك إلى صفحة الحجز بعد إرسال النموذج.</small>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== من نحن ==== -->
+    <section id="about" style="background: var(--gray);">
+        <div class="container">
+            <h2 class="section-title">من نحن</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 4rem; font-size: 1.2rem;">
+                مهمتنا هي حماية متجرك من الخسائر باستخدام الذكاء الاصطناعي.
+            </p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <img src="images/imad.jpg" alt="جراردة عماد الدين">
+                    <h3>جراردة عماد الدين</h3>
+                    <p>مختص في الذكاء الاصطناعي، مدرب في ميدان الروبوتات.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="images/about-team.jpg" alt="بن زاوي مريم">
+                    <h3>بن زاوي مريم</h3>
+                    <p>مختصة في الاتصالات السلكية ولا سلكية، مسير المشروع، صاحب محل لبيع ملابس</p>
+                </div>
+                <div class="feature-card">
+                    <img src="images/about-partners.jpg" alt="طباخ مصطفى">
+                    <h3>طباخ مصطفى</h3>
+                    <p>خبير ذكاء اصطناعي، استاذ جامعي دكتوراه الكترونيك، مختص في البرمجيات</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== اتصل بنا ==== -->
+    <section id="contact">
+        <div class="container">
+            <h2 class="section-title">اتصل بنا</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem;">
+                <div>
+                    <h3>تواصل معنا</h3>
+                    <p style="margin: 1.5rem 0;">
+                        <strong>البريد الإلكتروني:</strong> contact@ahmini.com<br>
+                        <strong>الهاتف:</strong> +213 696 43 97 71<br>
+                        <strong>ساعات العمل:</strong> الأحد - الخميس، 9ص - 6م
+                    </p>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6476.800845064673!2d4.545148330842663!3d35.74096163688455!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x128b7d001e1d4303%3A0x6932674f0032b36e!2z2YPZhNmK2Kkg2KfZhNil2LnZhNin2YUg2KfZhNii2YTZiiDZiCDYp9mE2LHZitin2LbZitin2Ko!5e0!3m2!1sfr!2sfr!4v1761852470751!5m2!1sfr!2sfr" 
+                            width="100%" height="250" style="border:0; border-radius: 12px;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+                <div>
+                    <h3>أرسل رسالة</h3>
+                    <form style="margin-top: 1.5rem;">
+                        <div class="form-group">
+                            <label>الاسم</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الرسالة</label>
+                            <textarea class="form-control" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">إرسال الرسالة</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== الشروط والخصوصية ==== -->
+    <section id="legal" style="background: var(--gray);">
+        <div class="container">
+            <h2 class="section-title">الشروط وسياسة الخصوصية</h2>
+            <div style="max-width: 800px; margin: 0 auto; background: white; padding: 3rem; border-radius: 16px; line-height: 2;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">سياسة الخصوصية</h3>
+                <ul style="margin-right: 1.5rem;">
+                    <li>نحن <strong>لا نبيع بيانات المستخدم</strong> لأي طرف ثالث.</li>
+                    <li>بيانات الكاميرات تبقى <strong>ملكًا لصاحب المتجر</strong> ولا نستخدمها إلا لأغراض الكشف.</li>
+                    <li>لا نستخدم أي تحليل قائم على العرق أو ملامح الوجه أو أي بيانات شخصية حساسة.</li>
+                    <li>مدة الاحتفاظ بالمقاطع: 30 يومًا كحد أقصى، ثم يتم حذفها تلقائيًا.</li>
+                    <li>حقوق المستخدم: يمكنك طلب حذف جميع بياناتك في أي وقت.</li>
+                </ul>
+                <hr style="margin: 2rem 0;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">شروط الاستخدام</h3>
+                <p>باستخدام المراقب، فإنك توافق على عدم استخدام النظام لأغراض غير قانونية أو مراقبة الموظفين دون علمهم.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== Footer ==== -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>المراقب</h3>
+                    <p>حل ذكي للكشف عن السرقة في المتاجر باستخدام الذكاء الاصطناعي.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>روابط سريعة</h3>
+                    <ul>
+                        <li><a href="#how-it-works">كيف يعمل</a></li>
+                        <li><a href="#features">الخصائص</a></li>
+                        <li><a href="#pricing">التسعير</a></li>
+                        <li><a href="#book-demo">حجز عرض</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>الشركة</h3>
+                    <ul>
+                        <li><a href="#about">من نحن</a></li>
+                        <li><a href="#contact">اتصل بنا</a></li>
+                        <li><a href="#legal">الشروط والخصوصية</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>تواصل معنا</h3>
+                    <p>contact@ahmini.com<br>+213 696 43 97 71</p>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 المراقب. جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==== JavaScript ==== -->
+    <script>
+        // قائمة الموبايل
+        document.querySelector('.mobile-toggle').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+
+        // التمرير السلس
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // إرسال النماذج
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('شكرًا لك! تم استلام طلبك وسيتم التواصل معك قريبًا.');
+            });
+        });
+    </script>
+
+</body>
+</html>
